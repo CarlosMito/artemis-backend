@@ -10,17 +10,18 @@ class User(models.Model):
 class Input(models.Model):
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     prompt = models.TextField()
-    negative_prompt = models.TextField()
+    negative_prompt = models.TextField(null=True, blank=True)
     image_dimensions = models.CharField(max_length=32)
     num_outputs = models.IntegerField()
     num_inference_steps = models.PositiveIntegerField()
     guidance_scale = models.FloatField()
     scheduler = models.CharField(max_length=128)
     seed = models.BigIntegerField()
-    style = models.CharField(max_length=64)
-    saturation = models.CharField(max_length=64)
-    value = models.CharField(max_length=64)
-    color = models.CharField(max_length=64)
+    style = models.CharField(max_length=64, null=True, blank=True)
+    saturation = models.CharField(max_length=64, null=True, blank=True)
+    value = models.CharField(max_length=64, null=True, blank=True)
+    color = models.CharField(max_length=64, null=True, blank=True)
+    replicate_id = models.TextField(null=True, blank=True)
 
 
 class Output(models.Model):

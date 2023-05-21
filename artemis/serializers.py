@@ -18,7 +18,7 @@ class InputSerializer(serializers.ModelSerializer):
         # fields = "__all__"
         fields = [
             "id", "user", "prompt", "negative_prompt", "image_dimensions", "num_outputs", "num_inference_steps",
-            "guidance_scale", "scheduler", "seed", "style", "saturation", "value", "color", "outputs"
+            "guidance_scale", "scheduler", "seed", "style", "saturation", "value", "color", "replicate_id", "outputs"
         ]
 
 

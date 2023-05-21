@@ -6,7 +6,7 @@ from .views import (
 
 router = routers.DefaultRouter()
 router.register("api/output", OutputListApiView)
-# router.register("api/text2image", text2image)
+# router.register("api/text2image", Text2ImageApiView)
 
 urlpatterns = [
     path("", include(router.urls)),

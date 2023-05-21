@@ -71,7 +71,10 @@ def artemis_api_test():
 
     # print(response.json())
 
-    print(requests.post(f"{ARTEMIS_URL}/text2image", headers={}, data={}).json())
+    # response = requests.post(f"{ARTEMIS_URL}/text2image", headers={}, data={})
+    response = requests.get(f"{ARTEMIS_URL}/text2image?id=1", headers={}, data={})
+
+    print(response.json())
 
 
 if __name__ == "__main__":
