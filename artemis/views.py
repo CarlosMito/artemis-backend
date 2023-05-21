@@ -17,7 +17,7 @@ class UserListApiView(APIView):
         '''
         List all the [User] items for given requested user
         '''
-        users = User.objects
+        users = User.objects.all()
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -96,7 +96,7 @@ class OutputListApiView(viewsets.ModelViewSet):
     #     '''
     #     List all the [Output] items for given requested user
     #     '''
-    #     outputs = Output.objects
+    #     outputs = Output.objects.all()
     #     serializer = OutputSerializer(outputs, many=True)
     #     return Response(serializer.data, status=status.HTTP_200_OK)
 
