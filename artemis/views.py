@@ -6,6 +6,8 @@ from rest_framework import permissions
 from rest_framework import viewsets
 from .models import User, Input, Output
 from .serializers import UserSerializer, InputSerializer, OutputSerializer
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
 
 
 class UserListApiView(APIView):
@@ -15,7 +17,7 @@ class UserListApiView(APIView):
     # 1. List all
     def get(self, request, *args, **kwargs):
         '''
-        List all the [User] items for given requested user
+        List all the [User] elements on the system
         '''
         users = User.objects.all()
         serializer = UserSerializer(users, many=True)
@@ -24,7 +26,7 @@ class UserListApiView(APIView):
     # 2. Create
     def post(self, request, *args, **kwargs):
         '''
-        Create the [User] with given todo data
+        Create a new [User] to the system
         '''
         data = {
             "username": request.data.get("username"),
@@ -57,7 +59,7 @@ class InputListApiView(APIView):
     # 2. Create
     def post(self, request, *args, **kwargs):
         '''
-        Create the [Input] with given todo data
+        Create the [Input] to a given user
         '''
         data = {
             "user": request.data.get("user"),
@@ -87,6 +89,15 @@ class InputListApiView(APIView):
 class OutputListApiView(viewsets.ModelViewSet):
     queryset = Output.objects.all()
     serializer_class = OutputSerializer
+
+    # # 1. List all
+    # def get(self, request, *args, **kwargs):
+    #     '''
+    #     List all the [Output] items for given requested input
+    #     '''
+    #     outputs = Output.objects.filter(input=2)
+    #     serializer = OutputSerializer(outputs, many=True)
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
 
     # # add permission to check if user is authenticated
     # permission_classes = [permissions.IsAuthenticated]
@@ -119,3 +130,9 @@ class OutputListApiView(viewsets.ModelViewSet):
     #         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(["POST"])
+@permission_classes((permissions.AllowAny,))
+def text2image(request):
+    return Response({"message": "Got some data!", "data": request.data})

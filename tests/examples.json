@@ -31,6 +31,17 @@
       "saturation": "low",
       "value": "high",
       "color": "red"
+    },
+    {
+      "user": 2,
+      "prompt": "GIrl in a white wedding dress",
+      "negative_prompt": "",
+      "image_dimensions": "758x758",
+      "num_outputs": 4,
+      "num_inference_steps": 60,
+      "guidance_scale": 9,
+      "scheduler": "KEuler",
+      "seed": 23876023
     }
   ],
   "outputs": [

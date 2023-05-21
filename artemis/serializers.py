@@ -6,21 +6,23 @@ from .models import User, Input, Output
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["username", "password", "email"]
+        fields = ["id", "username", "password", "email"]
 
 
 class InputSerializer(serializers.ModelSerializer):
+    outputs = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+
     class Meta:
         model = Input
         # NOTE: Maybe change to
         # fields = "__all__"
         fields = [
-            "user", "prompt", "negative_prompt", "image_dimensions", "num_outputs", "num_inference_steps",
-            "guidance_scale", "scheduler", "seed", "style", "saturation", "value", "color"
+            "id", "user", "prompt", "negative_prompt", "image_dimensions", "num_outputs", "num_inference_steps",
+            "guidance_scale", "scheduler", "seed", "style", "saturation", "value", "color", "outputs"
         ]
 
 
 class OutputSerializer(serializers.ModelSerializer):
     class Meta:
         model = Output
-        fields = ["input", "image", "is_public", "favorite_count"]
+        fields = ["id", "input", "image", "is_public", "favorite_count"]
