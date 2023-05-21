@@ -24,7 +24,11 @@ class Input(models.Model):
 
 
 class Output(models.Model):
+
+    def upload_to(instance, filename):
+        return f"outputs/{filename}"
+
     input = models.ForeignKey(Input, on_delete=models.DO_NOTHING)
-    image = models.ImageField(upload_to="outputs")
+    image = models.ImageField(upload_to=upload_to)
     is_public = models.BooleanField(default=False)
     favorite_count = models.IntegerField(default=0)
