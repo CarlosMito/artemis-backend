@@ -100,11 +100,13 @@ class OutputListApiView(viewsets.ModelViewSet):
 
 @api_view(["GET", "POST"])
 @permission_classes((permissions.AllowAny,))
-def text2image(request):
+def text2image(request: Request):
 
     if request.method == "GET":
-        id = int(request.GET.get("id"))
-        print(id)
+        print(request.data)
+        print(request.query_params)
+        print(request.GET.get("id"))
+        # print(int(request.GET.get("id")))
         return Response({"message": "Hello, world!"})
 
     data = {
