@@ -2,6 +2,9 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+import logging as log
+
+log.basicConfig(level=log.DEBUG, format="[%(levelname)s] %(filename)s:%(lineno)d - %(message)s")
 
 
 def main():
