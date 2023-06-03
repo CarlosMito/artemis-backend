@@ -127,12 +127,13 @@ def text2image(request: Request):
             "saturation": request.data.get("saturation"),
             "value": request.data.get("value"),
             "color": request.data.get("color"),
-            "replicate_id": request.data.get("replicateId"),
+            "replicate_id": request.data.get("replicateId")
         }
 
         log.debug(data)
 
         serializer = InputSerializer(data=data)
+        print(serializer.is_valid())
 
         if serializer.is_valid():
             # serializer.save()
