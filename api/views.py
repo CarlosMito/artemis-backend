@@ -111,10 +111,12 @@ def text2image(request: Request) -> Response:
 
         response = ReplicateAPI.status(id_list)
 
-        print(response)
+        log.debug(response)
 
         if response.status_code == 200:
-            return Response({"message": "Hello, world!"})
+            log.debug(response.json())
+            data = ReplicateAPI.parse_get_response(response.json())
+            return Response(data, status=status.HTTP_200_OK)
 
         return response
 

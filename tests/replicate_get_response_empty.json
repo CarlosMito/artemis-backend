@@ -1,0 +1,20 @@
+{
+    "completed_at": "2023-06-03T18:43:50.351051Z",
+    "created_at": "2023-06-03T18:43:46.938149Z",
+    "error": null,
+    "id": "p3hy6h7pijbqzjrhk36342v62a",
+    "input": {},
+    "logs": null,
+    "metrics": {
+        "predict_time": 3.493467
+    },
+    "output": null,
+    "started_at": "2023-06-03T18:43:46.857584Z",
+    "status": "succeeded",
+    "urls": {
+        "get": "https://api.replicate.com/v1/predictions/p3hy6h7pijbqzjrhk36342v62a",
+        "cancel": "https://api.replicate.com/v1/predictions/p3hy6h7pijbqzjrhk36342v62a/cancel"
+    },
+    "version": "db21e45d3f7023abc2a46ee38a23973f6dce16bb082a930b0c49861f96d1e5bf",
+    "webhook_completed": null
+}

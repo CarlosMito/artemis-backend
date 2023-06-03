@@ -76,6 +76,42 @@ def artemis_api_test():
     print(get_status("p3hy6h7pijbqzjrhk36342v62a"))
 
 
+def parse_get_response():
+    with open("replicate_get_response_empty.json", "r", encoding="UTF-8") as file:
+        rjson = json.load(file)
+
+        seed = None
+        outputs = None
+        percentages = None
+
+        # [output] key
+        if "output" in rjson and rjson["output"] is not None:
+            outputs = rjson["output"]
+
+        # [logs] key
+        if "logs" in rjson  and rjson["logs"] is not None:
+            logs = rjson["logs"]
+
+            percentages = []
+
+            for line in logs.split('\n'):
+                if "%" in line:
+                    index = line.find("%")
+                    value = line[:index].strip()
+
+                    if value.isdigit():
+                        percentages.append(int(value))
+
+                elif "seed" in line:
+                    index = line.find(":")
+                    seed = line[index + 1:].strip()
+    
+    print(f"Seed: {seed}")
+    print(f"Percentages: {percentages}")
+    print(f"Outputs: {outputs}")
+
+
 if __name__ == "__main__":
-    artemis_api_test()
+    parse_get_response()
+    # artemis_api_test()
     # image_download_test()
