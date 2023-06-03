@@ -104,6 +104,7 @@ class OutputListApiView(viewsets.ModelViewSet):
 def text2image(request: Request):
 
     if request.method == "GET":
+        log.debug("[GET] Method text2image")
         reqdict = dict(request.query_params.lists())
         id_list = reqdict["id"]
         log.debug(id_list)
@@ -111,30 +112,30 @@ def text2image(request: Request):
         return Response({"message": "Hello, world!", "total": len(id_list)})
 
     if request.method == "POST":
+        log.debug("[POST] Method text2image")
         data = {
             "user": request.data.get("user"),
             "prompt": request.data.get("prompt"),
-            "negative_prompt": request.data.get("negative_prompt"),
-            "image_dimensions": request.data.get("image_dimensions"),
-            "num_outputs": request.data.get("num_outputs"),
-            "num_inference_steps": request.data.get("num_inference_steps"),
-            "guidance_scale": request.data.get("guidance_scale"),
+            "negative_prompt": request.data.get("negativePrompt"),
+            "image_dimensions": request.data.get("imageDimensions"),
+            "num_outputs": request.data.get("numOutputs"),
+            "num_inference_steps": request.data.get("numInferenceSteps"),
+            "guidance_scale": request.data.get("guidanceScale"),
             "scheduler": request.data.get("scheduler"),
             "seed": request.data.get("seed"),
             "style": request.data.get("style"),
             "saturation": request.data.get("saturation"),
             "value": request.data.get("value"),
             "color": request.data.get("color"),
-            "replicate_id": request.data.get("replicate_id")
+            "replicate_id": request.data.get("replicateId"),
         }
+
+        log.debug(data)
 
         serializer = InputSerializer(data=data)
 
         if serializer.is_valid():
-
-            # TODO: Make request Replicate API
-
-            serializer.save()
+            # serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

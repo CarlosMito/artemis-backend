@@ -21,6 +21,10 @@ class InputSerializer(serializers.ModelSerializer):
             "guidance_scale", "scheduler", "seed", "style", "saturation", "value", "color", "replicate_id", "outputs"
         ]
 
+        # fields = [
+        #     "user"
+        # ]
+
 
 class OutputSerializer(serializers.ModelSerializer):
     class Meta:

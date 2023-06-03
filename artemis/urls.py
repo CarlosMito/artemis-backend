@@ -5,12 +5,12 @@ from .views import (
 )
 
 router = routers.DefaultRouter()
-router.register("api/output", OutputListApiView)
-# router.register("api/text2image", Text2ImageApiView)
+router.register("output", OutputListApiView)
+# router.register("text2image", Text2ImageApiView)
 
 urlpatterns = [
     path("", include(router.urls)),
-    path("api/user", UserListApiView.as_view()),
-    path("api/input", InputListApiView.as_view()),
-    path("api/text2image", text2image),
+    path("user", UserListApiView.as_view()),
+    path("input", InputListApiView.as_view()),
+    path("text2image", text2image),
 ]
