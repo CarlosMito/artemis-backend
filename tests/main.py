@@ -40,16 +40,13 @@ def get_status(id):
 
     response = requests.get(f"{URL}/{id}", headers=headers)
 
-    print(response.json())
-
     return response.json()
 
 
 def api_tests():
     # make_post_prediction()
 
-    id = "b3izkvloijh7lhpgn45yoa4xm4"
-    get_status(id)
+    get_status("b3izkvloijh7lhpgn45yoa4xm4")
 
 
 def image_download_test():
@@ -72,9 +69,11 @@ def artemis_api_test():
     # print(response.json())
 
     # response = requests.post(f"{ARTEMIS_URL}/text2image", headers={}, data={})
-    response = requests.get(f"{ARTEMIS_URL}/text2image?id=1", headers={}, data={})
+    # response = requests.get(f"{ARTEMIS_URL}/text2image?id=1", headers={}, data={})
 
-    print(response.json())
+    # print(response.json())
+
+    print(get_status("p3hy6h7pijbqzjrhk36342v62a"))
 
 
 if __name__ == "__main__":

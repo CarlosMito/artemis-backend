@@ -38,6 +38,18 @@ class Input(models.Model):
     version = models.CharField(max_length=128)
     replicate_id = models.TextField(null=True, blank=True)
 
+    def __repr__(self):
+        strings = []
+        attributes = [
+            "user", "prompt", "negative_prompt", "image_dimensions", "num_outputs", "num_inference_steps",
+            "guidance_scale", "scheduler", "seed", "style", "saturation", "value", "color", "version", "replicate_id"
+        ]
+
+        for attribute in attributes:
+            strings.append(f"{attribute}: {getattr(self, attribute)}")
+
+        return f"Input({', '.join(strings)})"
+
 
 class Output(models.Model):
 

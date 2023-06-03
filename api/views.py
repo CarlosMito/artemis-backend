@@ -101,7 +101,7 @@ class OutputListApiView(viewsets.ModelViewSet):
 
 @api_view(["GET", "POST"])
 @permission_classes((permissions.AllowAny,))
-def text2image(request: Request):
+def text2image(request: Request) -> Response:
 
     if request.method == "GET":
         log.debug("[GET Method] text2image")
@@ -109,7 +109,14 @@ def text2image(request: Request):
         id_list = reqdict["id"]
         log.debug(id_list)
 
-        return Response({"message": "Hello, world!", "total": len(id_list)})
+        response = ReplicateAPI.status(id_list)
+
+        print(response)
+
+        if response.status_code == 200:
+            return Response({"message": "Hello, world!"})
+
+        return response
 
     if request.method == "POST":
         log.debug("[POST Method] text2image")
@@ -134,17 +141,19 @@ def text2image(request: Request):
         log.debug(data)
 
         serializer = InputSerializer(data=data)
-        print(serializer.is_valid())
 
         if serializer.is_valid():
             # serializer.save()
-            # print(REPLICATE_API_TOKEN)
 
             instance = serializer.create(serializer.data)
-            print(instance)
-            # ReplicateAPI.text2image(instance)
+            log.debug(repr(instance))
 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            response = ReplicateAPI.text2image(instance)
+
+            if response != None:
+                return Response({}, status=status.HTTP_201_CREATED)
+
+            return Response({}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

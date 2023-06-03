@@ -22,6 +22,7 @@ class InputSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
+        validated_data["user"] = Profile.objects.get(pk=validated_data["user"])
         return Input(**validated_data)
 
     # def update(self, instance, validated_data):
