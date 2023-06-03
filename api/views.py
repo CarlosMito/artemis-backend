@@ -1,17 +1,19 @@
-# todo/todo_api/views.py
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework import status
 from rest_framework import permissions
 from rest_framework import viewsets
-from .models import User, Input, Output
-from .serializers import UserSerializer, InputSerializer, OutputSerializer
+
+from artemis.settings import REPLICATE_API_TOKEN
+from utils.replicate_api import ReplicateAPI
+from .models import Profile, Input, Output
+from .serializers import ProfileSerializer, InputSerializer, OutputSerializer
 from rest_framework.decorators import api_view, permission_classes
 import logging as log
 
 
-class UserListApiView(APIView):
+class ProfileListApiView(APIView):
     # add permission to check if user is authenticated
     permission_classes = [permissions.IsAuthenticated]
 
@@ -20,8 +22,8 @@ class UserListApiView(APIView):
         '''
         List all the [User] elements on the system
         '''
-        users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
+        users = Profile.objects.all()
+        serializer = ProfileSerializer(users, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     # 2. Create
@@ -30,12 +32,10 @@ class UserListApiView(APIView):
         Create a new [User] to the system
         '''
         data = {
-            "username": request.data.get("username"),
-            "password": request.data.get("password"),
-            "email": request.data.get("email"),
+            "user": request.data.get("user")
         }
 
-        serializer = UserSerializer(data=data)
+        serializer = ProfileSerializer(data=data)
 
         if serializer.is_valid():
             serializer.save()
@@ -138,6 +138,12 @@ def text2image(request: Request):
 
         if serializer.is_valid():
             # serializer.save()
+            # print(REPLICATE_API_TOKEN)
+
+            instance = serializer.create(serializer.data)
+            print(instance)
+            # ReplicateAPI.text2image(instance)
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -1,12 +1,12 @@
 # todo/todo_api/serializers.py
 from rest_framework import serializers
-from .models import User, Input, Output
+from .models import Profile, Input, Output
 
 
-class UserSerializer(serializers.ModelSerializer):
+class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
-        fields = ["id", "username", "password", "email"]
+        model = Profile
+        fields = ["user"]
 
 
 class InputSerializer(serializers.ModelSerializer):
@@ -20,6 +20,16 @@ class InputSerializer(serializers.ModelSerializer):
             "id", "user", "prompt", "negative_prompt", "image_dimensions", "num_outputs", "num_inference_steps", "version",
             "guidance_scale", "scheduler", "seed", "style", "saturation", "value", "color", "replicate_id", "outputs"
         ]
+
+    def create(self, validated_data):
+        return Input(**validated_data)
+
+    # def update(self, instance, validated_data):
+    #     instance.email = validated_data.get('email', instance.email)
+    #     instance.content = validated_data.get('content', instance.content)
+    #     instance.created = validated_data.get('created', instance.created)
+    #     instance.save()
+    #     return instance
 
 
 class OutputSerializer(serializers.ModelSerializer):
