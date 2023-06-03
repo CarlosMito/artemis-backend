@@ -21,6 +21,7 @@ class Input(models.Model):
     saturation = models.CharField(max_length=64, null=True, blank=True)
     value = models.CharField(max_length=64, null=True, blank=True)
     color = models.CharField(max_length=64, null=True, blank=True)
+    version = models.CharField(max_length=128)
     replicate_id = models.TextField(null=True, blank=True)
 
 

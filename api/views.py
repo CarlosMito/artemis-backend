@@ -104,7 +104,7 @@ class OutputListApiView(viewsets.ModelViewSet):
 def text2image(request: Request):
 
     if request.method == "GET":
-        log.debug("[GET] Method text2image")
+        log.debug("[GET Method] text2image")
         reqdict = dict(request.query_params.lists())
         id_list = reqdict["id"]
         log.debug(id_list)
@@ -112,7 +112,7 @@ def text2image(request: Request):
         return Response({"message": "Hello, world!", "total": len(id_list)})
 
     if request.method == "POST":
-        log.debug("[POST] Method text2image")
+        log.debug("[POST Method] text2image")
         data = {
             "user": request.data.get("user"),
             "prompt": request.data.get("prompt"),
@@ -127,6 +127,7 @@ def text2image(request: Request):
             "saturation": request.data.get("saturation"),
             "value": request.data.get("value"),
             "color": request.data.get("color"),
+            "version": request.data.get("version"),
             "replicate_id": request.data.get("replicateId")
         }
 
@@ -139,4 +140,6 @@ def text2image(request: Request):
             # serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response(serializer.errors, status=status.HTTP_405_METHOD_NOT_ALLOWED)
