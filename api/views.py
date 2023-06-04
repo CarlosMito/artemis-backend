@@ -1,11 +1,13 @@
+import requests
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework import status
 from rest_framework import permissions
 from rest_framework import viewsets
+from pathlib import Path
 
-from artemis.settings import REPLICATE_API_TOKEN
+from artemis.settings import MEDIA_ROOT, REPLICATE_API_TOKEN
 from utils.replicate_api import ReplicateAPI
 from .models import Profile, Input, Output
 from .serializers import ProfileSerializer, InputSerializer, OutputSerializer
@@ -106,16 +108,50 @@ def text2image(request: Request) -> Response:
     if request.method == "GET":
         log.debug("[GET Method] text2image")
         reqdict = dict(request.query_params.lists())
-        id_list = reqdict["id"]
-        log.debug(id_list)
+        replicate_ids = reqdict["id"]
+        log.debug(replicate_ids)
 
-        response = ReplicateAPI.status(id_list)
-
+        response = ReplicateAPI.status(replicate_ids)
         log.debug(response)
 
         if response.status_code == 200:
-            log.debug(response.json())
             data = ReplicateAPI.parse_get_response(response.json())
+
+            replicate_id = replicate_ids[0]
+
+            if data["outputs"] is not None:
+                input = Input.objects.filter(replicate_id=replicate_id).first()
+                log.debug(f"Found input: {input}")
+
+                for output in data["outputs"]:
+                    splitted = output.split(".")
+                    extension = splitted[-1]
+                    number = splitted[-2].split("-")[-1]
+                    filename = f"{replicate_id}-{number}.{extension}"
+                    filepath = Path(MEDIA_ROOT) / "outputs" / filename
+                    imagepath = f"outputs/{filename}"
+
+                    output_instance = Output.objects.filter(image=imagepath).first()
+
+                    if output_instance is not None:
+                        log.debug(f"Image [{imagepath}] already on database")
+                        continue
+
+                    response = requests.get(output)
+
+                    if response.status_code == 200 and input is not None:
+                        log.debug(f"Saving image at {filepath}")
+
+                        with open(filepath, "wb") as file:
+                            file.write(response.content)
+
+                        instance = Output(input=input, image=imagepath)
+                        serializer = OutputSerializer(instance=instance, data={}, partial=True)
+
+                        if serializer.is_valid():
+                            serializer.save()
+                            return Response({"saved": True}, status=status.HTTP_200_OK)
+
             return Response(data, status=status.HTTP_200_OK)
 
         return response
@@ -145,15 +181,23 @@ def text2image(request: Request) -> Response:
         serializer = InputSerializer(data=data)
 
         if serializer.is_valid():
-            # serializer.save()
-
             instance = serializer.create(serializer.data)
             log.debug(repr(instance))
 
-            response = ReplicateAPI.text2image(instance)
+            updates = ReplicateAPI.text2image(instance)
 
-            if response != None:
-                return Response({}, status=status.HTTP_201_CREATED)
+            if updates is not None:
+                serializer = InputSerializer(instance, data=updates, partial=True)
+
+                if serializer.is_valid():
+                    serializer.save()
+
+                    data = {
+                        "id": serializer.instance.id,
+                        "replicate_id": serializer.instance.replicate_id
+                    }
+
+                    return Response(data, status=status.HTTP_201_CREATED)
 
             return Response({}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 

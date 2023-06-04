@@ -17,7 +17,7 @@ class ReplicateAPI:
     ENPOINTS = Enpoints
 
     @staticmethod
-    def status(id_list: List[str]):
+    def status(ids: List[str]):
 
         url = f"{ReplicateAPI.BASE_URL}/{ReplicateAPI.ENPOINTS.TEXT2IMAGE}"
 
@@ -27,7 +27,7 @@ class ReplicateAPI:
             "Authorization": f"Token {REPLICATE_API_TOKEN}"
         }
 
-        return requests.get(f"{url}/{id_list[0]}", headers=headers)
+        return requests.get(f"{url}/{ids[0]}", headers=headers)
 
         # responses = {}
 
@@ -37,7 +37,7 @@ class ReplicateAPI:
         # return responses
 
     @staticmethod
-    def text2image(instance: Input) -> Response:
+    def text2image(instance: Input) -> dict:
 
         url = f"{ReplicateAPI.BASE_URL}/{ReplicateAPI.ENPOINTS.TEXT2IMAGE}"
 
@@ -48,7 +48,12 @@ class ReplicateAPI:
             "version": instance.version,
             "input": {
                 "prompt": instance.prompt,
-                "negative_prompt": instance.negative_prompt
+                "negative_prompt": instance.negative_prompt,
+                "num_outputs": instance.num_outputs,
+                # "num_inference_steps": instance.num_inference_steps,
+                # "guidance_scale": instance.guidance_scale,
+                # "scheduler": instance.scheduler,
+                "seed": instance.seed
             }
         }
 
@@ -56,11 +61,12 @@ class ReplicateAPI:
             "Authorization": f"Token {REPLICATE_API_TOKEN}"
         }
 
-        # response = requests.post(url, data=json.dumps(body), headers=headers)
-        # log.debug(f"STATUS CODE: {response.status_code}")
-        # log.debug(F"RESPONSE:\n{response.json()}")
+        response = requests.post(url, data=json.dumps(body), headers=headers)
+        log.debug(f"STATUS CODE: {response.status_code}")
 
-        # return response
+        if response.status_code == 200 or response.status_code == 201:
+            log.debug(F"RESPONSE:\n{response.json()}")
+            return {"replicate_id": response.json()["id"]}
 
     @staticmethod
     def parse_get_response(rjson) -> dict:
@@ -86,7 +92,11 @@ class ReplicateAPI:
                     value = line[:index].strip()
 
                     if value.isdigit():
-                        percentages.append(int(value))
+                        percentages[-1].append(int(value))
+
+                # Means is a new output
+                elif "seed" in line:
+                    percentages.append([])
 
         log.debug(f"ID: {id}")
         log.debug(f"Percentages: {percentages}")
