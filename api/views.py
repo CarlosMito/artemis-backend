@@ -7,7 +7,7 @@ from rest_framework import permissions
 from rest_framework import viewsets
 from pathlib import Path
 
-from artemis.settings import MEDIA_ROOT, REPLICATE_API_TOKEN
+from artemis.settings import MEDIA_ROOT
 from utils.replicate_api import ReplicateAPI
 from .models import Profile, Input, Output
 from .serializers import ProfileSerializer, InputSerializer, OutputSerializer
@@ -150,7 +150,7 @@ def text2image(request: Request) -> Response:
 
                         if serializer.is_valid():
                             serializer.save()
-                            return Response({"saved": True}, status=status.HTTP_200_OK)
+                            log.debug(f"Successfully saved image [{imagepath}] in the database")
 
             return Response(data, status=status.HTTP_200_OK)
 
