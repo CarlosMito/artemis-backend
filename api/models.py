@@ -34,7 +34,7 @@ class Input(models.Model):
     style = models.CharField(max_length=64, null=True, blank=True)
     saturation = models.CharField(max_length=64, null=True, blank=True)
     value = models.CharField(max_length=64, null=True, blank=True)
-    color_value = models.IntegerField(null=True, blank=True)
+    color_value = models.BigIntegerField(null=True, blank=True)
     version = models.CharField(max_length=128)
     replicate_id = models.TextField(null=True, blank=True)
 

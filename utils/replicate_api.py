@@ -17,24 +17,20 @@ class ReplicateAPI:
     ENPOINTS = Enpoints
 
     @staticmethod
-    def status(ids: List[str]):
+    def status(replicate_id: str):
 
         url = f"{ReplicateAPI.BASE_URL}/{ReplicateAPI.ENPOINTS.TEXT2IMAGE}"
-
         log.debug(url)
 
-        headers = {
-            "Authorization": f"Token {REPLICATE_API_TOKEN}"
-        }
+        headers = {"Authorization": f"Token {REPLICATE_API_TOKEN}"}
 
-        return requests.get(f"{url}/{ids[0]}", headers=headers)
+        response = requests.get(f"{url}/{replicate_id}", headers=headers)
 
-        # responses = {}
+        if response.status_code != 200:
+            log.debug(response)
+            return None
 
-        # for id in id_list:
-        #     responses[id] = requests.get(f"{url}/{id}", headers=headers).json()
-
-        # return responses
+        return ReplicateAPI.parse_get_response(response.json())
 
     @staticmethod
     def text2image(instance: Input) -> dict:
@@ -50,9 +46,9 @@ class ReplicateAPI:
                 "prompt": instance.prompt,
                 "negative_prompt": instance.negative_prompt,
                 "num_outputs": instance.num_outputs,
-                # "num_inference_steps": instance.num_inference_steps,
-                # "guidance_scale": instance.guidance_scale,
-                # "scheduler": instance.scheduler,
+                "num_inference_steps": instance.num_inference_steps,
+                "guidance_scale": instance.guidance_scale,
+                "scheduler": instance.scheduler,
                 "seed": instance.seed
             }
         }
@@ -67,6 +63,8 @@ class ReplicateAPI:
         if response.status_code == 200 or response.status_code == 201:
             log.debug(F"RESPONSE:\n{response.json()}")
             return {"replicate_id": response.json()["id"]}
+
+        log.debug(response.content)
 
     @staticmethod
     def parse_get_response(rjson) -> dict:
@@ -92,11 +90,14 @@ class ReplicateAPI:
                     value = line[:index].strip()
 
                     if value.isdigit():
-                        percentages[-1].append(int(value))
+                        percentage = int(value)
+
+                        if percentage > percentages[-1]:
+                            percentages[-1] = percentage
 
                 # Means is a new output
                 elif "seed" in line:
-                    percentages.append([])
+                    percentages.append(0)
 
         log.debug(f"ID: {id}")
         log.debug(f"Percentages: {percentages}")
