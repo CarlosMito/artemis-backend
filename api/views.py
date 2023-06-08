@@ -19,7 +19,7 @@ from django.contrib.auth import authenticate, login, logout
 
 
 @api_view(["POST"])
-@permission_classes((permissions.AllowAny,))
+@permission_classes([permissions.AllowAny])
 def login_artemis(request):
     log.debug("Login Artemis")
     username = request.POST["username"]
@@ -28,7 +28,7 @@ def login_artemis(request):
 
     if user is not None:
         login(request, user)
-        return Response({"message": "Login success!"}, status=status.HTTP_200_OK)
+        return Response({"message": "User Logged in successfully!"}, status=status.HTTP_200_OK)
     else:
         return Response({"error": "Wrong credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -82,13 +82,12 @@ class InputListApiView(APIView):
         '''
         List all the [Input] items for given requested user
         '''
-        # TODO: Use [if request.user.is_authenticated:]
-        if request.user.is_authenticated:
+        if request.user.is_authenticated and request.user.id == user_id:
             inputs = Input.objects.filter(user_id=user_id)
             serializer = InputSerializer(inputs, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            return Response({"error": "Unautorazied"}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"error": "Unauthorized. Please, try again!"}, status=status.HTTP_403_FORBIDDEN)
 
     # 2. Create
     def post(self, request):
@@ -108,7 +107,7 @@ class InputListApiView(APIView):
             "style": request.data.get("style"),
             "saturation": request.data.get("saturation"),
             "value": request.data.get("value"),
-            "color": request.data.get("color")
+            "color_value": request.data.get("color_value")
         }
 
         serializer = InputSerializer(data=data)
@@ -124,15 +123,24 @@ class OutputListApiView(viewsets.ModelViewSet):
     queryset = Output.objects.all()
     serializer_class = OutputSerializer
 
-    def list(self, request, *args, **kwargs):
-        ids = list(map(int, request.GET.getlist('id')))
-        outputs = Output.objects.filter(pk__in=ids) if ids else Output.objects.all()
-        serializer = OutputSerializer(outputs, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    # def list(self, request, *args, **kwargs):
+    #     ids = list(map(int, request.GET.getlist('id')))
+    #     outputs = Output.objects.filter(pk__in=ids) if ids else Output.objects.all()
+    #     serializer = OutputSerializer(outputs, many=True)
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def get(self, request, user_id):
+        if request.user.is_authenticated and request.user.id == user_id:
+            ids = list(map(int, request.GET.getlist('id')))
+            outputs = Output.objects.filter(user_id=user_id, pk__in=ids)
+            serializer = OutputSerializer(outputs, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Unauthorized. Please, try again!"}, status=status.HTTP_403_FORBIDDEN)
 
 
 @api_view(["GET", "POST"])
-@permission_classes((permissions.AllowAny,))
+@permission_classes([permissions.AllowAny])
 def text2image(request: Request) -> Response:
 
     if request.method == "GET":

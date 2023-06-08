@@ -34,7 +34,7 @@ class Input(models.Model):
     style = models.CharField(max_length=64, null=True, blank=True)
     saturation = models.CharField(max_length=64, null=True, blank=True)
     value = models.CharField(max_length=64, null=True, blank=True)
-    color = models.CharField(max_length=64, null=True, blank=True)
+    color_value = models.IntegerField(null=True, blank=True)
     version = models.CharField(max_length=128)
     replicate_id = models.TextField(null=True, blank=True)
 
@@ -42,7 +42,7 @@ class Input(models.Model):
         strings = []
         attributes = [
             "user", "prompt", "negative_prompt", "image_dimensions", "num_outputs", "num_inference_steps",
-            "guidance_scale", "scheduler", "seed", "style", "saturation", "value", "color", "version", "replicate_id"
+            "guidance_scale", "scheduler", "seed", "style", "saturation", "value", "color_value", "version", "replicate_id"
         ]
 
         for attribute in attributes:

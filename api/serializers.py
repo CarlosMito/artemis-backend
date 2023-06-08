@@ -17,7 +17,7 @@ class InputSerializer(serializers.ModelSerializer):
         # fields = "__all__"
         fields = [
             "id", "user", "prompt", "negative_prompt", "image_dimensions", "num_outputs", "num_inference_steps", "version",
-            "guidance_scale", "scheduler", "seed", "style", "saturation", "value", "color", "replicate_id", "outputs"
+            "guidance_scale", "scheduler", "seed", "style", "saturation", "value", "color_value", "replicate_id", "outputs"
         ]
 
     def create(self, validated_data):
