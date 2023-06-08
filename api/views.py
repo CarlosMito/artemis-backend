@@ -12,7 +12,34 @@ from utils.replicate_api import ReplicateAPI
 from .models import Profile, Input, Output
 from .serializers import ProfileSerializer, InputSerializer, OutputSerializer
 from rest_framework.decorators import api_view, permission_classes
+from django.contrib.auth.decorators import login_required
 import logging as log
+
+from django.contrib.auth import authenticate, login, logout
+
+
+@api_view(["POST"])
+@permission_classes((permissions.AllowAny,))
+def login_artemis(request):
+    log.debug("Login Artemis")
+    username = request.POST["username"]
+    password = request.POST["password"]
+    user = authenticate(request, username=username, password=password)
+
+    if user is not None:
+        login(request, user)
+        return Response({"message": "Login success!"}, status=status.HTTP_200_OK)
+    else:
+        return Response({"error": "Wrong credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+@api_view(["GET"])
+@permission_classes([permissions.IsAuthenticated])
+def logout_artemis(request):
+    log.debug("Logout Artemis")
+    # request.user.auth_token.delete()
+    logout(request)
+    return Response({"message": "User Logged out successfully!"}, status=status.HTTP_200_OK)
 
 
 class ProfileListApiView(APIView):
@@ -51,17 +78,20 @@ class InputListApiView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     # 1. List all
-    def get(self, request, *args, **kwargs):
+    def get(self, request, user_id):
         '''
         List all the [Input] items for given requested user
         '''
-        # TODO: Should I use the default User Django API Framework entity?
-        inputs = Input.objects.filter(user=request.user.id)
-        serializer = InputSerializer(inputs, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        # TODO: Use [if request.user.is_authenticated:]
+        if request.user.is_authenticated:
+            inputs = Input.objects.filter(user_id=user_id)
+            serializer = InputSerializer(inputs, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Unautorazied"}, status=status.HTTP_403_FORBIDDEN)
 
     # 2. Create
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         '''
         Create the [Input] to a given user
         '''

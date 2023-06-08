@@ -31,7 +31,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -147,3 +146,6 @@ MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "images")
 
 # URL used to access the media
 MEDIA_URL = "images/"
+
+# https://stackoverflow.com/questions/70285834/forbidden-403-csrf-verification-failed-request-aborted-reason-given-for-fail
+CSRF_TRUSTED_ORIGINS = ["http://*.127.0.0.1"]
