@@ -96,7 +96,7 @@ class ReplicateAPI:
                             percentages[-1] = percentage
 
                 # Means is a new output
-                elif "seed" in line:
+                elif "input_shape" in line:
                     percentages.append(0)
 
         log.debug(f"ID: {id}")

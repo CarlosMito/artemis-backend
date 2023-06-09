@@ -17,6 +17,16 @@ from django.views.decorators.csrf import csrf_exempt
 import logging as log
 
 from django.contrib.auth import authenticate, login, logout
+from django.middleware.csrf import get_token
+from django.http import JsonResponse
+
+
+@api_view(["GET"])
+@permission_classes([permissions.IsAuthenticated])
+def get_csrf_token(request):
+    log.debug("Get CSRF Token")
+    csrf_token = get_token(request)
+    return Response({"csrfToken": csrf_token}, status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])
@@ -142,7 +152,7 @@ class OutputListApiView(viewsets.ModelViewSet):
 
 # @csrf_exempt
 @api_view(["GET", "POST"])
-@permission_classes([permissions.AllowAny])
+@permission_classes([permissions.IsAuthenticated])
 def text2image(request: Request) -> Response:
 
     if request.method == "GET":
@@ -156,12 +166,13 @@ def text2image(request: Request) -> Response:
         log.debug(input.replicate_id)
 
         data = ReplicateAPI.status(input.replicate_id)
+        log.debug(data)
 
         if data is None:
             return Response({"error": "Could get status from Replicate API"}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
-        if data["outputs"] is None:
-            return Response({"error": "This generation is too old to get the results"}, status=status.HTTP_410_GONE)
+        if data["percentages"] is None:
+            return Response({"error": "This generation is too old to get the results or it doesn't have results"}, status=status.HTTP_410_GONE)
 
         log.debug(data)
 
