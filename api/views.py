@@ -174,8 +174,6 @@ def text2image(request: Request) -> Response:
         if data["percentages"] is None:
             return Response({"error": "This generation is too old to get the results or it doesn't have results"}, status=status.HTTP_410_GONE)
 
-        log.debug(data)
-
         if data["outputs"] is not None:
             input = Input.objects.filter(replicate_id=input.replicate_id).first()
             log.debug(f"Found input: {input}")
@@ -208,6 +206,9 @@ def text2image(request: Request) -> Response:
                     if serializer.is_valid():
                         serializer.save()
                         log.debug(f"Successfully saved image [{imagepath}] in the database")
+
+                        # TODO: Maybe put the post-processing functions here
+                        # [CODE]
 
         return Response(data, status=status.HTTP_200_OK)
 
