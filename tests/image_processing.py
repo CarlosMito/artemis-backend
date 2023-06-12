@@ -2,6 +2,7 @@ import cv2
 from pathlib import Path
 from collections import defaultdict
 import numpy as np
+import colorsys
 
 RESOURCE_FOLDER = Path("../images/outputs")
 OUTPUT_FOLDER = Path("./outputs")
@@ -14,6 +15,9 @@ def change_saturation(image: np.ndarray, scale: float):
 
 
 def change_value(image: np.ndarray, scale: float):
+    # Equalizar 10% - 60% de 255
+    # Equalizar 40% - 90% de 255
+    # Ou algo do tipo
     hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     hsv_image[..., 2] = np.clip(hsv_image[..., 2] * scale, 0, 255)
     return cv2.cvtColor(hsv_image, cv2.COLOR_HSV2BGR)
@@ -109,8 +113,8 @@ def change_hue(image: np.ndarray, target_color: float):
 
 #     return (np.clip(equalized, 0, 1) * 255).astype(np.uint8)
 
-if __name__ == "__main__":
 
+def image_processing_prototypes():
     OUTPUT_FOLDER.mkdir(parents=True, exist_ok=True)
 
     images = [
@@ -145,3 +149,26 @@ if __name__ == "__main__":
 
         cv2.imwrite(processed_path, result)
         cv2.waitKey(0)
+
+
+def argb_to_hsv(argb: int):
+    """
+    [argb]: The integer representation of the ARGB color.
+    """
+    red = (argb >> 16) & 0xFF
+    green = (argb >> 8) & 0xFF
+    blue = argb & 0xFF
+
+    normalized_red = red / 255.0
+    normalized_green = green / 255.0
+    normalized_blue = blue / 255.0
+
+    return colorsys.rgb_to_hsv(normalized_red, normalized_green, normalized_blue)
+
+
+def color_space_prototypes():
+    print(argb_to_hsv(4283215696))
+
+
+if __name__ == "__main__":
+    color_space_prototypes()

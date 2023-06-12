@@ -8,6 +8,7 @@ from rest_framework import viewsets
 from pathlib import Path
 
 from artemis.settings import MEDIA_ROOT
+from utils.image_processing import change_hue, change_saturation, change_value, argb_to_hsv
 from utils.replicate_api import ReplicateAPI
 from .models import Profile, Input, Output
 from .serializers import ProfileSerializer, InputSerializer, OutputSerializer
@@ -19,6 +20,8 @@ import logging as log
 from django.contrib.auth import authenticate, login, logout
 from django.middleware.csrf import get_token
 from django.http import JsonResponse
+
+from cv2 import imread, imwrite
 
 
 @api_view(["GET"])
@@ -150,7 +153,6 @@ class OutputListApiView(viewsets.ModelViewSet):
             return Response({"error": "Unauthorized. Please, try again!"}, status=status.HTTP_403_FORBIDDEN)
 
 
-# @csrf_exempt
 @api_view(["GET", "POST"])
 @permission_classes([permissions.IsAuthenticated])
 def text2image(request: Request) -> Response:
@@ -159,10 +161,10 @@ def text2image(request: Request) -> Response:
         log.debug("[GET Method] text2image")
         # reqdict = dict(request.query_params.lists())
         # intput_ids = reqdict["id"]
-        intput_id = request.GET.get("input_id")
-        log.debug(intput_id)
+        input_id = request.GET.get("input_id")
+        log.debug(input_id)
 
-        input = Input.objects.filter(pk=intput_id).first()
+        input = Input.objects.filter(pk=input_id).first()
         log.debug(input.replicate_id)
 
         data = ReplicateAPI.status(input.replicate_id)
@@ -204,11 +206,8 @@ def text2image(request: Request) -> Response:
                     serializer = OutputSerializer(instance=instance, data={}, partial=True)
 
                     if serializer.is_valid():
-                        serializer.save()
+                        instance: Output = serializer.save()
                         log.debug(f"Successfully saved image [{imagepath}] in the database")
-
-                        # TODO: Maybe put the post-processing functions here
-                        # [CODE]
 
         return Response(data, status=status.HTTP_200_OK)
 
@@ -262,3 +261,78 @@ def text2image(request: Request) -> Response:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     return Response(serializer.errors, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+@api_view(["POST"])
+@permission_classes([permissions.IsAuthenticated])
+def post_processing(request: Request) -> Response:
+    log.debug("[POST Method] post_processing")
+    log.debug(request.data)
+
+    input_id = request.data.get("input_id")
+    log.debug(input_id)
+
+    input = Input.objects.filter(pk=input_id).first()
+    outputs = Output.objects.filter(input_id=input_id)
+
+    if input is None:
+        return Response({"error": "Couldn't find the given input"}, status=status.HTTP_400_BAD_REQUEST)
+
+    if not outputs:
+        return Response({"error": "Couldn't find any output for the given input"}, status=status.HTTP_400_BAD_REQUEST)
+
+    log.debug(f"Color Value: {input.color_value}")
+    log.debug(f"Saturation: {input.saturation}")
+    log.debug(f"Value: {input.value}")
+
+    needs_post_processing = input.saturation != "random" or input.value != "random" or input.color_value != 0
+    log.debug(f"Needs Post Processing: {needs_post_processing}")
+
+    if needs_post_processing:
+
+        scales = {
+            "high": 1.5,
+            "low": 0.5,
+        }
+
+        for output in outputs:
+
+            if output.processed == True:
+                log.debug(f"This output has already been processed {output.image}")
+                continue
+
+            filepath = str(Path(MEDIA_ROOT) / str(output.image))
+            image = imread(filepath)
+            log.debug(output.image)
+
+            if image is None:
+                log.debug(f"Couldn't read image from path {filepath}")
+                continue
+
+            if input.saturation != "random":
+                scale = scales[str(input.saturation)]
+                image = change_saturation(image, scale)
+
+            if input.value != "random":
+                scale = scales[str(input.value)]
+                image = change_value(image, scale)
+
+            if input.color_value != 0:
+                hsv = argb_to_hsv(input.color_value)
+                hue = int(hsv[0] * 255)
+                image = change_hue(image, hue)
+
+            imwrite(filepath, image)
+
+            output.processed = True
+            output.save()
+
+    return Response({"message": "Post processing applied successfully!"}, status=status.HTTP_201_CREATED)
+
+
+# image = cv2.imread(image_path)
+# assert image is not None, f"Couldn't load image at {image_path}"
+# cv2.imwrite(processed_path, result)
+# # TODO: Maybe put the post-processing functions here
+# instance.processed = True
+# instance.save()
