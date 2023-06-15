@@ -40,10 +40,26 @@ class ReplicateAPI:
         log.debug(repr(instance))
         log.debug(url)
 
+        styles = {
+            "anime": ", anime visual, trending on pixiv, high resolution artwork, final artwork by krenz cushart and artgerm and Rob Rey",
+            "digitalArt": "digital art style",
+            "model3d": "3d model style",
+            "oilPainting": "oil painting style",
+            "photography": "photography style",
+            "surrealism": "surrealism",
+            "comic": "comic style",
+            "impressionist": "impressionist style",
+            "graffiti": "graffiti style",
+            "popArt": "pop art style"
+        }
+
+        style = "" if instance.style not in styles else styles[instance.style]
+        log.debug(f"Style: {style}")
+
         body = {
             "version": instance.version,
             "input": {
-                "prompt": instance.prompt,
+                "prompt": f"{instance.prompt} {style}",
                 "negative_prompt": instance.negative_prompt,
                 "num_outputs": instance.num_outputs,
                 "num_inference_steps": instance.num_inference_steps,
