@@ -33,6 +33,21 @@ def get_csrf_token(request):
     return Response({"csrfToken": csrf_token}, status=status.HTTP_200_OK)
 
 
+@api_view(["GET"])
+@permission_classes([permissions.AllowAny])
+def get_logged_in_user(request):
+    log.debug("Get logged in user")
+
+    if request.user.is_authenticated:
+        return Response({
+            "id": request.user.id,
+            "username": request.user.username,
+            "email": request.user.email
+        }, status=status.HTTP_200_OK)
+
+    return Response({"error": "User not logged in!"}, status=status.HTTP_403_FORBIDDEN)
+
+
 @api_view(["POST"])
 @permission_classes([permissions.AllowAny])
 def login_artemis(request):
