@@ -58,7 +58,7 @@ def login_artemis(request):
 
     if user is not None:
         login(request, user)
-        return Response({"message": "User Logged in successfully!"}, status=status.HTTP_200_OK)
+        return Response({"id": user.id, "username": user.username, "email": user.email}, status=status.HTTP_200_OK)
     else:
         return Response({"error": "Wrong credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
