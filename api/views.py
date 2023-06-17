@@ -10,7 +10,7 @@ from pathlib import Path
 from artemis.settings import MEDIA_ROOT
 from utils.image_processing import change_hue, change_saturation, change_value, argb_to_hsv
 from utils.replicate_api import ReplicateAPI
-from .models import Profile, Input, Output
+from .models import Profile, Input, Output, User
 from .serializers import ProfileSerializer, InputSerializer, OutputSerializer
 from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth.decorators import login_required
@@ -20,6 +20,7 @@ import logging as log
 from django.contrib.auth import authenticate, login, logout
 from django.middleware.csrf import get_token
 from django.http import JsonResponse
+from django.db.utils import IntegrityError
 
 from cv2 import imread, imwrite
 
@@ -54,6 +55,35 @@ def logout_artemis(request):
     # request.user.auth_token.delete()
     logout(request)
     return Response({"message": "User Logged out successfully!"}, status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+@permission_classes([permissions.AllowAny])
+def signup_artemis(request):
+    log.debug("Signup Artemis")
+    username = request.POST["username"]
+    email = request.POST["email"]
+    password = request.POST["password"]
+
+    # user = User.objects.create_user(username, email, password)
+
+    try:
+        user = User.objects.create_user(username, email, password)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+    profile = Profile(user=user)
+
+    user.save()
+    profile.save()
+
+    return Response({"message": "User signed up successfully!"}, status=status.HTTP_201_CREATED)
+
+    # if user is not None:
+    #     login(request, user)
+    #     return Response({"message": "User Logged in successfully!"}, status=status.HTTP_200_OK)
+    # else:
+    #     return Response({"error": "Wrong credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class ProfileListApiView(APIView):

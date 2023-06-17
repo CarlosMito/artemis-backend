@@ -40,9 +40,9 @@ class ReplicateAPI:
         log.debug(repr(instance))
         log.debug(url)
 
-        styles = {
-            "anime": ", anime visual, trending on pixiv, high resolution artwork, final artwork by krenz cushart and artgerm and Rob Rey",
-            "digitalArt": "digital art style",
+        styles_prompt = {
+            "anime": "anime visual, trending on pixiv, high resolution artwork, final artwork by artgerm",
+            "digitalArt": "digital art, trending on artstation",
             "model3d": "3d model style",
             "oilPainting": "oil painting style",
             "photography": "photography style",
@@ -53,14 +53,31 @@ class ReplicateAPI:
             "popArt": "pop art style"
         }
 
-        style = "" if instance.style not in styles else styles[instance.style]
-        log.debug(f"Style: {style}")
+        # styles_negative_prompt = {
+        #     "anime": "",
+        #     "digitalArt": "digital art, trending on artstation",
+        #     "model3d": "3d model style",
+        #     "oilPainting": "oil painting style",
+        #     "photography": "photography style",
+        #     "surrealism": "surrealism",
+        #     "comic": "comic style",
+        #     "impressionist": "impressionist style",
+        #     "graffiti": "graffiti style",
+        #     "popArt": "pop art style"
+        # }
+
+        style_prompt = "" if instance.style not in styles_prompt else styles_prompt[instance.style]
+        # style_negative_prompt = "" if instance.style not in styles_negative_prompt else styles_negative_prompt[instance.style]
+        default_negative_prompt = "ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, extra limbs, disfigured, deformed, body out of frame, bad anatomy, watermark, signature, cut off, low contrast, underexposed, overexposed, bad art, beginner, amateur, distorted face, blurry, draft, grainy"
+
+        log.debug(f"Style Prompt: {style_prompt}")
+        log.debug(f"Style Negative Prompt: {default_negative_prompt}")
 
         body = {
             "version": instance.version,
             "input": {
-                "prompt": f"{instance.prompt} {style}",
-                "negative_prompt": instance.negative_prompt,
+                "prompt": f"{instance.prompt}, {style_prompt}".strip(','),
+                "negative_prompt": f"{instance.negative_prompt}, {default_negative_prompt}".strip(','),
                 "num_outputs": instance.num_outputs,
                 "num_inference_steps": instance.num_inference_steps,
                 "guidance_scale": instance.guidance_scale,
