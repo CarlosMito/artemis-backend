@@ -80,8 +80,6 @@ def signup_artemis(request):
     email = request.POST["email"]
     password = request.POST["password"]
 
-    # user = User.objects.create_user(username, email, password)
-
     try:
         user = User.objects.create_user(username, email, password)
     except Exception as e:
@@ -93,12 +91,6 @@ def signup_artemis(request):
     profile.save()
 
     return Response({"message": "User signed up successfully!"}, status=status.HTTP_201_CREATED)
-
-    # if user is not None:
-    #     login(request, user)
-    #     return Response({"message": "User Logged in successfully!"}, status=status.HTTP_200_OK)
-    # else:
-    #     return Response({"error": "Wrong credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class ProfileListApiView(APIView):
@@ -261,7 +253,7 @@ def text2image(request: Request) -> Response:
         log.debug(request.data)
 
         data = {
-            "user": request.data.get("user"),
+            "user": request.user.id,
             "prompt": request.data.get("prompt"),
             "negative_prompt": request.data.get("negative_prompt"),
             "image_dimensions": request.data.get("image_dimensions"),

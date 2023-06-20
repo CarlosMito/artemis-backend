@@ -41,16 +41,16 @@ class ReplicateAPI:
         log.debug(url)
 
         styles_prompt = {
-            "anime": "anime visual, trending on pixiv, high resolution artwork, final artwork by artgerm",
+            "anime": "anime visual, trending on pixiv",
             "digitalArt": "digital art, trending on artstation",
-            "model3d": "3d model style",
-            "oilPainting": "oil painting style",
-            "photography": "photography style",
+            "model3d": "3d model visual",
+            "oilPainting": "oil painting visual",
+            "photography": "photography visual",
             "surrealism": "surrealism",
-            "comic": "comic style",
-            "impressionist": "impressionist style",
-            "graffiti": "graffiti style",
-            "popArt": "pop art style"
+            "comic": "comic visual",
+            "impressionist": "impressionist visual",
+            "graffiti": "graffiti visual",
+            "popArt": "pop art visual"
         }
 
         # styles_negative_prompt = {
