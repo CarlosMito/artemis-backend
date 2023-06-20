@@ -179,12 +179,6 @@ class OutputListApiView(viewsets.ModelViewSet):
         ids = list(map(int, request.GET.getlist('id')))
         outputs = Output.objects.filter(pk__in=ids) if ids else Output.objects.all()
         serializer = OutputSerializer(outputs, many=True)
-
-        log.debug(ids)
-        log.debug(outputs)
-        log.debug(serializer.data)
-        log.debug(Output.objects.all())
-
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     # def get(self, request, user_id):

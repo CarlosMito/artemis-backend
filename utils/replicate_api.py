@@ -46,7 +46,7 @@ class ReplicateAPI:
             "model3d": "3d model visual",
             "oilPainting": "oil painting visual",
             "photography": "photography visual",
-            "surrealism": "surrealism",
+            "surrealism": "surrealism visual",
             "comic": "comic visual",
             "impressionist": "impressionist visual",
             "graffiti": "graffiti visual",
