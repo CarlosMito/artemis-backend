@@ -173,21 +173,32 @@ class InputListApiView(APIView):
 class OutputListApiView(viewsets.ModelViewSet):
     queryset = Output.objects.all()
     serializer_class = OutputSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-    # def list(self, request, *args, **kwargs):
-    #     ids = list(map(int, request.GET.getlist('id')))
-    #     outputs = Output.objects.filter(pk__in=ids) if ids else Output.objects.all()
-    #     serializer = OutputSerializer(outputs, many=True)
-    #     return Response(serializer.data, status=status.HTTP_200_OK)
+    def list(self, request):
+        ids = list(map(int, request.GET.getlist('id')))
+        outputs = Output.objects.filter(pk__in=ids) if ids else Output.objects.all()
+        serializer = OutputSerializer(outputs, many=True)
 
-    def get(self, request, user_id):
-        if request.user.is_authenticated and request.user.id == user_id:
-            ids = list(map(int, request.GET.getlist('id')))
-            outputs = Output.objects.filter(user_id=user_id, pk__in=ids)
-            serializer = OutputSerializer(outputs, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response({"error": "Unauthorized. Please, try again!"}, status=status.HTTP_403_FORBIDDEN)
+        log.debug(ids)
+        log.debug(outputs)
+        log.debug(serializer.data)
+        log.debug(Output.objects.all())
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    # def get(self, request, user_id):
+    #     if request.user.is_authenticated and request.user.id == user_id:
+    #         ids = list(map(int, request.GET.getlist("id")))
+    #         outputs = Output.objects.filter(pk__in=ids)
+
+    #         log.debug(ids)
+    #         log.debug(outputs)
+
+    #         serializer = OutputSerializer(outputs, many=True)
+    #         return Response(serializer.data, status=status.HTTP_200_OK)
+    #     else:
+    #         return Response({"error": "Unauthorized. Please, try again!"}, status=status.HTTP_403_FORBIDDEN)
 
 
 @api_view(["GET", "POST"])
