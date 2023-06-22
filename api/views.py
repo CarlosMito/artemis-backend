@@ -11,7 +11,7 @@ from artemis.settings import MEDIA_ROOT
 from utils.image_processing import change_hue, change_saturation, change_value, argb_to_hsv
 from utils.replicate_api import ReplicateAPI
 from .models import Profile, Input, Output, User
-from .serializers import ProfileSerializer, InputSerializer, OutputSerializer
+from .serializers import OutputWithInputSerializer, ProfileSerializer, InputSerializer, OutputSerializer
 from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
@@ -193,6 +193,14 @@ class OutputListApiView(viewsets.ModelViewSet):
     #         return Response(serializer.data, status=status.HTTP_200_OK)
     #     else:
     #         return Response({"error": "Unauthorized. Please, try again!"}, status=status.HTTP_403_FORBIDDEN)
+
+
+@api_view(["GET"])
+@permission_classes([permissions.AllowAny])
+def get_public_outputs(request: Request) -> Response:
+    outputs = Output.objects.filter(is_public=True)
+    serializer = OutputWithInputSerializer(outputs, many=True, context={'request': request})
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(["GET", "POST"])

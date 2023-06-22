@@ -36,3 +36,17 @@ class OutputSerializer(serializers.ModelSerializer):
     class Meta:
         model = Output
         fields = ["id", "input", "image", "is_public", "favorite_count"]
+
+
+class OutputWithInputSerializer(serializers.ModelSerializer):
+    input = InputSerializer()
+    image = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Output
+        fields = ["id", "input", "image", "is_public", "favorite_count"]
+
+    def get_image(self, instance):
+        request = self.context.get("request")
+        image = instance.image.url
+        return request.build_absolute_uri(image)

@@ -3,7 +3,7 @@ from rest_framework import routers
 from rest_framework.authtoken.views import ObtainAuthToken
 from .views import (
     ProfileListApiView, InputListApiView, OutputListApiView,
-    logout_artemis, text2image, login_artemis, get_csrf_token, post_processing, signup_artemis, get_logged_in_user
+    logout_artemis, text2image, login_artemis, get_csrf_token, post_processing, signup_artemis, get_logged_in_user, get_public_outputs
 )
 
 router = routers.DefaultRouter()
@@ -20,4 +20,5 @@ urlpatterns = [
     path("csrf", get_csrf_token),
     path("post-processing", post_processing),
     path("logged-in-user", get_logged_in_user),
+    path("public-outputs", get_public_outputs),
 ]
