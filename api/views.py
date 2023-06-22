@@ -181,6 +181,25 @@ class OutputListApiView(viewsets.ModelViewSet):
         serializer = OutputSerializer(outputs, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def update(self, request, *args, **kwargs):
+        log.debug("[UPDATE] OutputListApiView")
+        partial = False
+
+        if "partial" in request.data:
+            partial = request.data.pop("partial")[0] == "true"
+
+        log.debug(f"[UPDATE] {partial}")
+        log.debug(f"[UPDATE] {request.data}")
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        log.debug(serializer.data)
+
+        # this will return autor's data as a response
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     # def get(self, request, user_id):
     #     if request.user.is_authenticated and request.user.id == user_id:
     #         ids = list(map(int, request.GET.getlist("id")))
