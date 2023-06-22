@@ -289,6 +289,7 @@ def text2image(request: Request) -> Response:
 
         if serializer.is_valid():
             instance = serializer.create(serializer.data)
+            log.debug(instance.user)
             log.debug(repr(instance))
 
             updates = ReplicateAPI.text2image(instance)
