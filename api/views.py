@@ -10,11 +10,12 @@ from pathlib import Path
 from artemis.settings import MEDIA_ROOT
 from utils.image_processing import change_hue, change_saturation, change_value, argb_to_hsv
 from utils.replicate_api import ReplicateAPI
-from .models import Profile, Input, Output, User
-from .serializers import OutputWithInputSerializer, ProfileSerializer, InputSerializer, OutputSerializer
+from .models import Favorite, Profile, Input, Output, User
+from .serializers import FavoriteSerializer, OutputWithInputSerializer, ProfileSerializer, InputSerializer, OutputSerializer
 from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import get_object_or_404
 import logging as log
 
 from django.contrib.auth import authenticate, login, logout
@@ -162,6 +163,32 @@ class InputListApiView(APIView):
         }
 
         serializer = InputSerializer(data=data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class FavoriteListApiView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        if request.user.is_authenticated:
+            favorites = Favorite.objects.filter(profile_id=request.user.id)
+            serializer = FavoriteSerializer(favorites, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Unauthorized. Please, try again!"}, status=status.HTTP_403_FORBIDDEN)
+
+    def post(self, request):
+        data = {
+            "profile": request.data.get("profile"),
+            "output": request.data.get("output")
+        }
+
+        serializer = FavoriteSerializer(data=data)
 
         if serializer.is_valid():
             serializer.save()

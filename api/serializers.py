@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Profile, Input, Output
+from .models import Favorite, Profile, Input, Output
 from django.contrib.auth.models import User
 import logging as log
 
@@ -76,3 +76,12 @@ class OutputWithInputSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         image = instance.image.url
         return request.build_absolute_uri(image)
+
+
+class FavoriteSerializer(serializers.ModelSerializer):
+    # profile = ProfileSerializer()
+    # output = OutputSerializer()
+
+    class Meta:
+        model = Favorite
+        fields = ["id", "profile", "output"]
