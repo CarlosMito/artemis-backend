@@ -24,12 +24,12 @@ REPLICATE_API_TOKEN = os.environ.get("REPLICATE_API_TOKEN")
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-)3(_j0!@#3_l3a!dt^6gzq1u^j4(k(89rk$3-z*ffjv68^mcir"
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -160,3 +160,14 @@ MEDIA_URL = "images/"
 
 # https://stackoverflow.com/questions/70285834/forbidden-403-csrf-verification-failed-request-aborted-reason-given-for-fail
 # CSRF_TRUSTED_ORIGINS = ["http://*.127.0.0.1"]
+
+# Deploy settings
+
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+
+# CSRF_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
+# SECURE_SSL_REDIRECT = True
+# SECURE_HSTS_SECONDS = 30
+# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+# SECURE_HSTS_PRELOAD = True
