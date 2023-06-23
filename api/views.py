@@ -10,11 +10,12 @@ from pathlib import Path
 from artemis.settings import MEDIA_ROOT
 from utils.image_processing import change_hue, change_saturation, change_value, argb_to_hsv
 from utils.replicate_api import ReplicateAPI
-from .models import Profile, Input, Output, User
-from .serializers import OutputWithInputSerializer, ProfileSerializer, InputSerializer, OutputSerializer
+from .models import Favorite, Profile, Input, Output, User
+from .serializers import FavoriteSerializer, OutputWithInputSerializer, ProfileSerializer, InputSerializer, OutputSerializer
 from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import get_object_or_404
 import logging as log
 
 from django.contrib.auth import authenticate, login, logout
@@ -93,6 +94,15 @@ def signup_artemis(request):
     return Response({"message": "User signed up successfully!"}, status=status.HTTP_201_CREATED)
 
 
+# @api_view(["GET"])
+# @permission_classes([permissions.IsAuthenticated])
+# def get_favorites(request: Request) -> Response:
+#     log.debug("Get Favorites")
+#     profile = Profile.objects.filter(user_id=request.user.id)[0]
+#     log.debug(profile.favorites)
+#     return Response({}, status=status.HTTP_200_OK)
+
+
 class ProfileListApiView(APIView):
     # add permission to check if user is authenticated
     permission_classes = [permissions.IsAuthenticated]
@@ -102,8 +112,8 @@ class ProfileListApiView(APIView):
         '''
         List all the [User] elements on the system
         '''
-        users = Profile.objects.all()
-        serializer = ProfileSerializer(users, many=True)
+        profiles = Profile.objects.all()
+        serializer = ProfileSerializer(profiles, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     # 2. Create
@@ -170,6 +180,39 @@ class InputListApiView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class FavoriteListApiView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        if request.user.is_authenticated:
+            favorites = Favorite.objects.filter(profile_id=request.user.id)
+            serializer = FavoriteSerializer(favorites, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Unauthorized. Please, try again!"}, status=status.HTTP_403_FORBIDDEN)
+
+    def post(self, request, output_id):
+
+        favorite = Favorite.objects.filter(profile=request.user.id, output=output_id).first()
+
+        if favorite is not None:
+            favorite.delete()
+            return Response({"message": "Unfavorited successfully!"}, status=status.HTTP_201_CREATED)
+
+        data = {
+            "profile": request.user.id,
+            "output": output_id
+        }
+
+        serializer = FavoriteSerializer(data=data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class OutputListApiView(viewsets.ModelViewSet):
     queryset = Output.objects.all()
     serializer_class = OutputSerializer
@@ -179,6 +222,13 @@ class OutputListApiView(viewsets.ModelViewSet):
         ids = list(map(int, request.GET.getlist('id')))
         outputs = Output.objects.filter(pk__in=ids) if ids else Output.objects.all()
         serializer = OutputSerializer(outputs, many=True)
+
+        profile = Profile.objects.filter(user_id=request.user.id).first()
+        favorited = profile.favorites.all()
+
+        for data in serializer.data:
+            data["is_favorite"] = favorited.filter(id=data["id"]).exists()
+
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
@@ -219,6 +269,14 @@ class OutputListApiView(viewsets.ModelViewSet):
 def get_public_outputs(request: Request) -> Response:
     outputs = Output.objects.filter(is_public=True)
     serializer = OutputWithInputSerializer(outputs, many=True, context={'request': request})
+
+    if request.user is not None:
+        profile = Profile.objects.filter(user_id=request.user.id).first()
+        favorited = profile.favorites.all()
+
+        for data in serializer.data:
+            data["is_favorite"] = favorited.filter(id=data["id"]).exists()
+
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
