@@ -270,7 +270,7 @@ def get_public_outputs(request: Request) -> Response:
     outputs = Output.objects.filter(is_public=True)
     serializer = OutputWithInputSerializer(outputs, many=True, context={'request': request})
 
-    if request.user is not None:
+    if not request.user.is_anonymous:
         profile = Profile.objects.filter(user_id=request.user.id).first()
         favorited = profile.favorites.all()
 
