@@ -94,6 +94,15 @@ def signup_artemis(request):
     return Response({"message": "User signed up successfully!"}, status=status.HTTP_201_CREATED)
 
 
+# @api_view(["GET"])
+# @permission_classes([permissions.IsAuthenticated])
+# def get_favorites(request: Request) -> Response:
+#     log.debug("Get Favorites")
+#     profile = Profile.objects.filter(user_id=request.user.id)[0]
+#     log.debug(profile.favorites)
+#     return Response({}, status=status.HTTP_200_OK)
+
+
 class ProfileListApiView(APIView):
     # add permission to check if user is authenticated
     permission_classes = [permissions.IsAuthenticated]
@@ -103,8 +112,8 @@ class ProfileListApiView(APIView):
         '''
         List all the [User] elements on the system
         '''
-        users = Profile.objects.all()
-        serializer = ProfileSerializer(users, many=True)
+        profiles = Profile.objects.all()
+        serializer = ProfileSerializer(profiles, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     # 2. Create
@@ -182,10 +191,17 @@ class FavoriteListApiView(APIView):
         else:
             return Response({"error": "Unauthorized. Please, try again!"}, status=status.HTTP_403_FORBIDDEN)
 
-    def post(self, request):
+    def post(self, request, output_id):
+
+        favorite = Favorite.objects.filter(profile=request.user.id, output=output_id).first()
+
+        if favorite is not None:
+            favorite.delete()
+            return Response({"message": "Unfavorited successfully!"}, status=status.HTTP_201_CREATED)
+
         data = {
-            "profile": request.data.get("profile"),
-            "output": request.data.get("output")
+            "profile": request.user.id,
+            "output": output_id
         }
 
         serializer = FavoriteSerializer(data=data)
@@ -206,6 +222,13 @@ class OutputListApiView(viewsets.ModelViewSet):
         ids = list(map(int, request.GET.getlist('id')))
         outputs = Output.objects.filter(pk__in=ids) if ids else Output.objects.all()
         serializer = OutputSerializer(outputs, many=True)
+
+        profile = Profile.objects.filter(user_id=request.user.id).first()
+        favorited = profile.favorites.all()
+
+        for data in serializer.data:
+            data["is_favorite"] = favorited.filter(id=data["id"]).exists()
+
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
@@ -246,6 +269,14 @@ class OutputListApiView(viewsets.ModelViewSet):
 def get_public_outputs(request: Request) -> Response:
     outputs = Output.objects.filter(is_public=True)
     serializer = OutputWithInputSerializer(outputs, many=True, context={'request': request})
+
+    if request.user is not None:
+        profile = Profile.objects.filter(user_id=request.user.id).first()
+        favorited = profile.favorites.all()
+
+        for data in serializer.data:
+            data["is_favorite"] = favorited.filter(id=data["id"]).exists()
+
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 

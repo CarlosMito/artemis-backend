@@ -13,7 +13,7 @@ from rest_framework.authtoken.models import Token
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    favorites = models.ManyToManyField("Output", through="Favorite", related_name='favorited_by')
+    favorites = models.ManyToManyField("Output", through="Favorite", related_name="favorited_by")
 
 
 @receiver(post_save, sender=User)

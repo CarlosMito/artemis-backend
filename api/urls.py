@@ -21,5 +21,5 @@ urlpatterns = [
     path("post-processing", post_processing),
     path("logged-in-user", get_logged_in_user),
     path("public-outputs", get_public_outputs),
-    path("favorites", FavoriteListApiView.as_view())
+    path("favorites/<int:output_id>", FavoriteListApiView.as_view())
 ]
