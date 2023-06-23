@@ -73,6 +73,6 @@ class Output(models.Model):
 
 
 class Favorite(models.Model):
-    profile = models.ForeignKey(Profile, on_delete=models.DO_NOTHING)
-    output = models.ForeignKey(Output, on_delete=models.DO_NOTHING)
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    output = models.ForeignKey(Output, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
